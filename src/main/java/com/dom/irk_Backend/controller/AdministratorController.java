@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/admins") // Zmieniona ścieżka specjalnie dla adminów
+@RequestMapping("/api/admins")
 public class AdministratorController {
 
     private final AdministratorService administratorService;

@@ -19,10 +19,17 @@ public class CandidateController {
     }
 
     @PostMapping("/register")
-    public Candidate register(@RequestBody Candidate candidate){
-        System.out.println("Połączenie z Reactem nawiązane! Dowód - Imię kandydata: " + candidate.getFirstName());
+    public ResponseEntity<?> register(@RequestBody Candidate candidate) {
 
-        return candidateService.registerCandidate(candidate);
+        if (candidateService.emailExists(candidate.getEmail())) {
+
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Rejestracja nieudana - email zajęty");
+        }
+
+        Candidate savedCandidate = candidateService.registerCandidate(candidate);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedCandidate);
     }
 
     @PostMapping("/login")
