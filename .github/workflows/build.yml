@@ -20,9 +20,7 @@ jobs:
                     distribution: 'temurin'
                     cache: 'maven'
 
-            -    name: Make mvnw executable
-                run: chmod +x mvnw
-            -    name: Build jar
+            -   name: Build jar
                 run: ./mvnw --batch-mode --errors --show-version --no-transfer-progress clean package -DskipTests
 
             -   name: Upload jar artifact
