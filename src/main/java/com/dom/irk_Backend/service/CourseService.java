@@ -17,13 +17,12 @@ public class CourseService {
 
     public Course updateCourse(Integer id, Course updatedData) {
         return courseRepository.findById(id).map(existingCourse -> {
+
             existingCourse.setName(updatedData.getName());
             existingCourse.setPlacesLimit(updatedData.getPlacesLimit());
 
-            existingCourse.setStartDate(updatedData.getStartDate());
-            existingCourse.setEndDate(updatedData.getEndDate());
-
             return courseRepository.save(existingCourse);
+
         }).orElseThrow(() -> new RuntimeException("Nie znaleziono kierunku o ID: " + id));
     }
 
