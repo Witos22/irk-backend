@@ -27,15 +27,16 @@ public class CandidateController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Candidate candidate) {
+        try {
+            Candidate savedCandidate = candidateService.registerCandidate(candidate);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedCandidate);
 
-        if (candidateService.emailExists(candidate.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Rejestracja nieudana - email zajęty");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
-
-        Candidate savedCandidate = candidateService.registerCandidate(candidate);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedCandidate);
     }
 
     @PostMapping("/login")
