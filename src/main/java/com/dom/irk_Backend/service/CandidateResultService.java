@@ -20,14 +20,10 @@ public class CandidateResultService {
     }
 
     public CandidateResult saveResultForCandidate(String candidateEmail, CandidateResult newResult) {
-        // 1. Szukamy kandydata na podstawie maila z sesji
         Candidate candidate = candidateRepository.findByEmail(candidateEmail)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono kandydata o emailu: " + candidateEmail));
 
-        // 2. Wiążemy wynik z konkretnym kandydatem
         newResult.setCandidate(candidate);
-
-        // 3. Zapisujemy w bazie
         return resultRepository.save(newResult);
     }
 
@@ -36,11 +32,14 @@ public class CandidateResultService {
         Candidate candidate = candidateRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono kandydata"));
 
+        // Czyścimy poprzednie wyniki (Wipe & Replace)
         resultRepository.deleteByCandidate(candidate);
+
         // 1. Zapisujemy matury podstawowe
         if (request.getMandatory() != null) {
             request.getMandatory().forEach((subject, score) -> {
                 if (score != null) {
+                    validateExamScore(subject, score); // WALIDACJA
                     saveSingleResult(candidate, subject + " (Podstawa)", score);
                 }
             });
@@ -50,6 +49,7 @@ public class CandidateResultService {
         if (request.getExtended() != null) {
             request.getExtended().forEach(item -> {
                 if (item.getSubject() != null && !item.getSubject().isEmpty() && item.getValue() != null) {
+                    validateExamScore(item.getSubject(), item.getValue()); // WALIDACJA
                     saveSingleResult(candidate, item.getSubject() + " (Rozszerzenie)", item.getValue());
                 }
             });
@@ -59,6 +59,7 @@ public class CandidateResultService {
         if (request.getGrades() != null) {
             request.getGrades().forEach(item -> {
                 if (item.getSubject() != null && item.getValue() != null) {
+                    validateSchoolGrade(item.getSubject(), item.getValue()); // WALIDACJA
                     saveSingleResult(candidate, "Ocena końcowa: " + item.getSubject(), item.getValue());
                 }
             });
@@ -71,5 +72,24 @@ public class CandidateResultService {
         result.setSubjectName(subject);
         result.setScore(score);
         resultRepository.save(result);
+    }
+
+    // --- METODY WALIDUJĄCE ---
+
+    private void validateExamScore(String subject, Integer score) {
+        if (score < 0 || score > 100) {
+            throw new IllegalArgumentException(
+                    "Nieprawidłowy wynik! Matura z przedmiotu '" + subject + "' musi być w przedziale 0-100. Przesłano: " + score
+            );
+        }
+    }
+
+    private void validateSchoolGrade(String subject, Integer grade) {
+        // Zakładam skalę 2-6 (możesz zmienić na 1-6 jeśli przyjmujecie jedynki)
+        if (grade < 2 || grade > 6) {
+            throw new IllegalArgumentException(
+                    "Nieprawidłowa ocena! Ocena ze świadectwa z przedmiotu '" + subject + "' musi być w przedziale 2-6. Przesłano: " + grade
+            );
+        }
     }
 }
