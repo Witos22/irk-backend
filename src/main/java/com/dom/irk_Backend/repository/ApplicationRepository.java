@@ -15,4 +15,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Intege
 
     // Pobiera wszystkie aplikacje danego kandydata
     List<Application> findByCandidate(Candidate candidate);
+    List<Application> findByRecruitmentId(Integer recruitmentId);
 }

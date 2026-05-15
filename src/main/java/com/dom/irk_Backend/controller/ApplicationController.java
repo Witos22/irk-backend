@@ -41,4 +41,11 @@ public class ApplicationController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return ResponseEntity.ok(applicationService.getMyApplications(auth.getName()));
     }
+
+    // Endpoint dla administratora, pobierający wszystkich kandydatów dla danego naboru
+    @GetMapping("/recruitment/{recruitmentId}")
+    public ResponseEntity<List<Application>> getApplicationsByRecruitment(@PathVariable Integer recruitmentId) {
+        // Uwaga: Tutaj warto dodać zabezpieczenie (np. sprawdzić rolę), by tylko admin miał do tego dostęp
+        return ResponseEntity.ok(applicationService.getApplicationsForRecruitment(recruitmentId));
+    }
 }
