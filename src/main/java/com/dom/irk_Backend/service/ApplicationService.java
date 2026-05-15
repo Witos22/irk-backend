@@ -56,6 +56,10 @@ public class ApplicationService {
         return applicationRepository.save(application);
     }
 
+    public List<Application> getApplicationsForRecruitment(Integer recruitmentId) {
+        return applicationRepository.findByRecruitmentId(recruitmentId);
+    }
+
     public List<Application> getMyApplications(String candidateEmail) {
         Candidate candidate = candidateRepository.findByEmail(candidateEmail)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono kandydata."));
