@@ -24,6 +24,15 @@ public class RecruitmentController {
         return recruitmentService.getAllRecruitments();
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<List<Recruitment>> getActiveRecruitments() {
+        // Pobieramy wszystkie i filtrujemy tylko aktywne (isActive = true)
+        List<Recruitment> active = recruitmentService.getAllRecruitments().stream()
+                .filter(r -> r.getIsActive() != null && r.getIsActive())
+                .toList();
+        return ResponseEntity.ok(active);
+    }
+
     @PostMapping
     public ResponseEntity<?> create(@RequestBody RecruitmentRequest request) {
         try {
