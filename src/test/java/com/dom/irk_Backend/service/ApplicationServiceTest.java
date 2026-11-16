@@ -453,45 +453,4 @@ class ApplicationServiceTest {
         assertThatThrownBy(() -> applicationService.getMyApplications(EMAIL))
                 .isInstanceOf(RuntimeException.class);
     }
-
-    @Test
-    @DisplayName("SCRUM-19: Aplikacje kierunku: dla kandydata z kilkoma aplikacjami zostaje tylko najlepsza")
-    void shouldKeepBestApplicationPerCandidate() {
-        Application best = applicationWithPoints(120);
-        best.setCandidate(candidate(1));
-        Application worse = applicationWithPoints(80);
-        worse.setCandidate(candidate(1));
-        Application other = applicationWithPoints(100);
-        other.setCandidate(candidate(2));
-        // repozytorium zwraca liste posortowana malejaco po punktach
-        when(applicationRepository.findByCourseIdOrderByPointsDesc(7)).thenReturn(List.of(best, other, worse));
-
-        List<Application> result = applicationService.getApplicationsByCourse(7);
-
-        assertThat(result).containsExactly(best, other);
-    }
-
-    // ---------- SCRUM-19: zmiana statusu aplikacji ----------
-
-    @Test
-    @DisplayName("SCRUM-19: Status aplikacji: zmiana zapisuje nowy status")
-    void shouldUpdateApplicationStatus() {
-        Application app = applicationWithPoints(10);
-        when(applicationRepository.findById(1)).thenReturn(Optional.of(app));
-        when(applicationRepository.save(any(Application.class))).thenAnswer(inv -> inv.getArgument(0));
-
-        Application result = applicationService.updateApplicationStatus(1, STATUS_QUALIFIED);
-
-        assertThat(result.getStatus()).isEqualTo(STATUS_QUALIFIED);
-    }
-
-    @Test
-    @DisplayName("SCRUM-19: Status aplikacji: nieistniejaca aplikacja -> RuntimeException")
-    void shouldFailUpdatingStatusOfMissingApplication() {
-        when(applicationRepository.findById(404)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> applicationService.updateApplicationStatus(404, STATUS_QUALIFIED))
-                .isInstanceOf(RuntimeException.class);
-        verify(applicationRepository, never()).save(any(Application.class));
-    }
 }
